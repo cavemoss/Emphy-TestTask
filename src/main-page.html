@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let currentlyViewed
+        
+        function openFull(event) {
+            // Selecting this deal
+            const thisDeal = event.currentTarget
+            // Setting currentlyViewed
+            if(currentlyViewed?.id !== thisDeal.id) {
+                currentlyViewed?.firstElementChild.classList.remove('hidden')
+                currentlyViewed?.lastElementChild.classList.add('hidden')
+                currentlyViewed = thisDeal
+            }
+
+            // Selecting sections of the deal
+            const infoLimitedSection = thisDeal.firstElementChild
+            infoLimitedSection.classList.toggle('hidden')
+            
+            const infoFullSection = thisDeal.lastElementChild
+            infoFullSection.classList.toggle('hidden')
+
+            $.ajax({ 
+                url: `http://localhost:8080/api/full-info?id=${thisDeal.id}`, 
+                method: "GET", 
+                success: processInfo 
+            })
+
+            async function processInfo(response) {
+                const fullInfo = response._embedded?.tasks[0]
+                const dueDate = fullInfo?.complete_till * 1000
+
+                if (dueDate - Date.now() > 1000 * 60 * 60 * 24)  var statusColor = 'orange'
+                else if (dueDate >= Date.now()) var statusColor = 'green'
+                else var statusColor = 'red'
+                
+                let taskTemp = await (await fetch('./components/task.html')).text()
+                thisDeal.lastElementChild.innerHTML = taskTemp
+                    .replace("{{NAME}}", fullInfo?.text || fullInfo?.id ? 'No name' : 'Задач нет')
+                    .replace("{{ID}}", fullInfo?.id)
+                    .replace("{{ID}}", fullInfo?.id)
+                    .replace("{{DATE}}", new Date(dueDate).toLocaleDateString())
+                    .replace("block", fullInfo?.id ? "block" : "none")
+                    .replace("block", fullInfo?.id ? "block" : "none")
+                    .replace("#222", statusColor === 'red' ? 'red' : '#222')
+                    .replace("{{STATUS_COLOR}}", fullInfo?.id ? statusColor : 'green')
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="deals-container"></div>
+    <script type="module">
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+        let dealTemp = await (await fetch('./components/deal.html')).text()
+
+        $(document).ready(function() {
+
+            let page = 1
+            const pull = () => $.ajax({ 
+                url: `http://localhost:8080/api/leads?page=${page}`, 
+                method: "GET", 
+                success: processDeals 
+            })
+            pull()
+
+            async function processDeals(response) {
+                if(!response._embedded) {return}
+                response._embedded.leads.forEach(deal => {
+                    
+                    var dealDiv = dealTemp
+                        .replace("{{ID}}", deal.id)
+                        .replace("{{ID}}", deal.id)
+                        .replace("{{NAME}}", deal.name)
+                        .replace("{{PRICE}}", deal.price.toLocaleString("de-DE"))
+
+                    $('#deals-container').append(dealDiv)
+                })
+                
+                await delay(0)
+                page++
+                pull()
+            }
+        })
+    </script>
+</body>
+</html>
