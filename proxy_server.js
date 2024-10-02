@@ -9,7 +9,7 @@ app.use(cors())
 
 try // Acquiring the access token
 {
-    const response = await axios.post("https://alexshu1812.amocrm.ru/oauth2/access_token", {
+    const response = await axios.post(`https://${process.env.SUB_DOMAIN}.amocrm.ru/oauth2/access_token`, {
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
         code: process.env.CODE,
@@ -25,12 +25,13 @@ catch (exception) {
     process.exit(0)
 }
 
+
 // http://localhost:8080/api/leads
 app.get('/api/leads', async function (req, res) {
     if (!ACCESS_TOKEN) return res.status(500).send('Internal Server Error')
     try
     {
-        const response = await axios.get(`https://alexshu1812.amocrm.ru/api/v4/leads?page=${req.query.page}&limit=3`, {
+        const response = await axios.get(`https://${process.env.SUB_DOMAIN}.amocrm.ru/api/v4/leads?page=${req.query.page}&limit=3`, {
             headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
         })
         res.json(response.data)
@@ -43,7 +44,7 @@ app.get('/api/full-info', async function (req, res) {
     if (!ACCESS_TOKEN) return res.status(500).send('Internal Server Error')
     try 
     {
-        const response = await axios.get(`https://alexshu1812.amocrm.ru/api/v4/tasks?filter[entity_type]=leads&filter[entity_id]=${req.query.id}`, {
+        const response = await axios.get(`https://${process.env.SUB_DOMAIN}.amocrm.ru/api/v4/tasks?filter[entity_type]=leads&filter[entity_id]=${req.query.id}`, {
             headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
         })
         res.json(response.data)

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node redirect_server.js && node proxy_server.js"
+    "rdr": "node redirect_server.js",
+    "prx": "node proxy_server.js"
   },
   "keywords": [],
   "author": "",
