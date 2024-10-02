@@ -26,6 +26,7 @@
             const infoFullSection = thisDeal.lastElementChild
             infoFullSection.classList.toggle('hidden')
 
+            // Loading data
             $.ajax({ 
                 url: `http://localhost:8080/api/full-info?id=${thisDeal.id}`, 
                 method: "GET", 

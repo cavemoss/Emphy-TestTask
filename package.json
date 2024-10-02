@@ -4,7 +4,6 @@
   "main": "proxy_server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "rdr": "node redirect_server.js",
     "prx": "node proxy_server.js"
   },
